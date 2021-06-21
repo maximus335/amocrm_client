@@ -17,3 +17,22 @@ oauth:
   client_secret: 'client_secret'
   init_access_token: 'init_access_token'
   init_refresh_token: 'init_refresh_token'
+accounts:
+  additional:
+    client:
+      api_endpoint: 'https://test.amocrm.ru'
+      api_path: '/api/v4/'
+      request_number: 7
+    stor_adapter:
+      stor: redis
+      ar:
+        model_name: 'AmoCRM::Token'
+      redis:
+        key: 'amocrm_tokens'
+    oauth:
+      redirect_uri: 'https://test.test/'
+      path: '/oauth2/access_token'
+      client_id: 'client_id'
+      client_secret: 'client_secret'
+      init_access_token: 'init_access_token'
+      init_refresh_token: 'init_refresh_token'

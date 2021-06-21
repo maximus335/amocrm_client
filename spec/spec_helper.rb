@@ -7,7 +7,6 @@ require 'webmock/rspec'
 require 'mock_redis'
 require 'faraday_middleware'
 
-# Cleanup Amorail env
 ENV.delete_if { |k, _| k =~ /amocrm_client/i }
 ENV["AMOCRM_CLIENT_CONF"] = File.expand_path("fixtures/amocrm_client_test.yml", __dir__)
 

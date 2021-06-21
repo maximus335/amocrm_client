@@ -17,18 +17,27 @@ module AmocrmClient
   end
 
   def connection
-    @connection ||= Connection.new
+    @connection ||= Connection.new(AmocrmClient.config)
+  end
+
+  def redis_connection
+    @redis_connection ||= Redis.new(url: AmocrmClient.config.redis['url'])
   end
 
   def configure
     yield(config) if block_given?
   end
 
-  def redlock
-    @redlock ||= Redlock.new
-  end
+  def accounts
+    return @accounts if defined?(@accounts)
 
-  def redis_connection
-    @redis_connection ||= Redis.new(url: AmocrmClient.config.redis['url'])
+    AmocrmClient.config.accounts&.keys&.each do |account|
+      define_method("connection_#{account}") do
+        return @account_connection if defined?(@account_connection)
+
+        @account_connection = Connection.new(OpenStruct.new(AmocrmClient.config.accounts[account]))
+      end
+    end
+    @accounts = self
   end
 end
