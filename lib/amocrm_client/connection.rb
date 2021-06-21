@@ -20,15 +20,17 @@ module AmocrmClient
       429 => ::AmocrmClient::AmoRequestsPerSecExceeded
     }.freeze
 
-    attr_reader :connect, :redlock
+    attr_reader :connect, :redlock, :config, :stor_token
 
-    def initialize
+    def initialize(config)
+      @config = config
+      @stor_token = AmocrmClient::StorTokens.new(config)
+      @redlock = Redlock.new(config)
       @connect = create_connection
-      @redlock = AmocrmClient.redlock
     end
 
     def create_connection
-      Faraday.new(url: AmocrmClient.config.client['api_endpoint']) do |faraday|
+      Faraday.new(url: config.client['api_endpoint']) do |faraday|
         faraday.response :json, content_type: /\bjson$/
         faraday.adapter Faraday.default_adapter
         faraday.authorization :Bearer, access_token
@@ -36,11 +38,11 @@ module AmocrmClient
     end
 
     def access_token
-      AmocrmClient::StorTokens.find['access_token']
+      stor_token.find['access_token']
     end
 
     def request(method, path, params = {})
-      url = AmocrmClient.config.client['api_path'] + path
+      url = config.client['api_path'] + path
       redlock.with_redlock { public_send(method, url, params) }
     rescue ::AmocrmClient::AmoUnauthorizedError
       redlock.refresh_with_redlock { refreshing_token }
@@ -49,8 +51,8 @@ module AmocrmClient
     end
 
     def refreshing_token
-      response = post(AmocrmClient.config.oauth['path'], refresh_params)
-      AmocrmClient::StorTokens.update(refresh_token: response['refresh_token'], access_token: response['access_token'])
+      response = post(config.oauth['path'], refresh_params)
+      stor_token.update(refresh_token: response['refresh_token'], access_token: response['access_token'])
     end
 
     def reconnect
@@ -59,11 +61,11 @@ module AmocrmClient
 
     def refresh_params
       {
-        client_id: AmocrmClient.config.oauth['client_id'],
-        client_secret: AmocrmClient.config.oauth['client_secret'],
+        client_id: config.oauth['client_id'],
+        client_secret: config.oauth['client_secret'],
         grant_type: 'refresh_token',
-        refresh_token: AmocrmClient::StorTokens.find['refresh_token'],
-        redirect_uri: AmocrmClient.config.oauth['redirect_uri']
+        refresh_token: stor_token.find['refresh_token'],
+        redirect_uri: config.oauth['redirect_uri']
       }
     end
 

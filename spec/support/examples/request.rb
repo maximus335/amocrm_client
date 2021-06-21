@@ -103,7 +103,7 @@ RSpec.shared_examples 'request method' do
 
     it 'update tokens' do
       request
-      expect(AmocrmClient::StorTokens.find).to eq(refresh_tokens)
+      expect(AmocrmClient::StorTokens.new(AmocrmClient.config).find).to eq(refresh_tokens)
     end
   end
 end
