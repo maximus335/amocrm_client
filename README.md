@@ -17,6 +17,10 @@ Create request(See AMOCRM api/v4 documentation)
 AmocrmClient.connection.request(:get, 'leads/1', {})
 ```
 
+If you are using additional accounts then use this
+```ruby
+AmocrmClient.accounts.connection_your_additional_account.request(:get, 'leads/1', {})
+```
 ### Configuration
 
 ```
@@ -44,4 +48,24 @@ development:
       client_secret: 'client_secret'
       init_access_token: 'init_access_token'
       init_refresh_token: 'init_refresh_token'
+    accounts:
+      your_additional_account:
+        client:
+          api_endpoint: 'https://subdomain.amocrm.ru'
+          api_path: '/api/v4/'
+          request_number: 7
+        stor_adapter:
+          stor: ar
+          ar:
+            model_name: 'Model Namespace'
+          redis:
+            key: 'Redis key'
+        oauth:
+          expires_in: 86400
+          redirect_uri: 'https://test.test/'
+          path: '/oauth2/access_token'
+          client_id: 'client_id-f959-4921-a8f2-e0c8c216bfdf'
+          client_secret: 'client_secret'
+          init_access_token: 'init_access_token'
+          init_refresh_token: 'init_refresh_token'
 ```

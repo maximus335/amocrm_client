@@ -2,25 +2,21 @@
 
 module AmocrmClient
   module StorAdapters
-    module Ar
-      extend self
+    class Ar
+      def initialize(config)
+        @model = config.stor_adapter.dig('ar', 'model_name').constantize
+      end
 
       def update(data)
-        model.last.update(data)
+        @model.last.update(data)
       end
 
       def find
-        model.last
+        @model.last
       end
 
       def create(params)
-        model.create!(params)
-      end
-
-      private
-
-      def model
-        @model ||= AmocrmClient.config.stor_adapter.dig('ar', 'model_name').constantize
+        @model.create!(params)
       end
     end
   end

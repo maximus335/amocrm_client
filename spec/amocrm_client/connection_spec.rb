@@ -4,23 +4,25 @@ require 'spec_helper'
 
 describe AmocrmClient::Connection do
   let(:connection) { AmocrmClient.connection }
+  let(:stor_token) { connection.stor_token }
+  let(:config) { connection.config }
 
   context "when init connection" do
     let(:init_tokens) do
       {
-        'refresh_token' => AmocrmClient.config.oauth['init_refresh_token'],
-        'access_token' => AmocrmClient.config.oauth['init_access_token']
+        'refresh_token' => config.oauth['init_refresh_token'],
+        'access_token' => config.oauth['init_access_token']
       }
     end
 
     it "should create client" do
       expect(connection.connect).to be_kind_of(Faraday::Connection)
-      expect(connection.redlock).to eq(AmocrmClient.redlock)
+      expect(connection.redlock).to be_kind_of(AmocrmClient::Redlock)
     end
 
     it 'should set tokens' do
       connection
-      expect(AmocrmClient::StorTokens.find).to eq(init_tokens)
+      expect(stor_token.find).to eq(init_tokens)
     end
   end
 
@@ -57,6 +59,31 @@ describe AmocrmClient::Connection do
       it_behaves_like 'request method' do
         let(:meth) { :patch }
         let(:path) { 'path' }
+      end
+    end
+
+    context 'when additional accounts connection is present' do
+      let(:connection) { AmocrmClient.accounts.connection_additional }
+
+      context 'when methods is get' do
+        it_behaves_like 'request method' do
+          let(:meth) { :get }
+          let(:path) { 'path' }
+        end
+      end
+
+      context 'when methods is post' do
+        it_behaves_like 'request method' do
+          let(:meth) { :post }
+          let(:path) { 'path' }
+        end
+      end
+
+      context 'when methods is patch' do
+        it_behaves_like 'request method' do
+          let(:meth) { :patch }
+          let(:path) { 'path' }
+        end
       end
     end
   end
